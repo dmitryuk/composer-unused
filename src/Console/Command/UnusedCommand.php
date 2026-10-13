@@ -16,6 +16,7 @@ use ComposerUnused\ComposerUnused\Composer\PackageFactory;
 use ComposerUnused\ComposerUnused\Configuration\ConfigurationProvider;
 use ComposerUnused\ComposerUnused\Configuration\NamedFilter;
 use ComposerUnused\ComposerUnused\Console\Progress\DefaultProgressBarDecorator;
+use ComposerUnused\ComposerUnused\Dependency\DependencyCollection;
 use ComposerUnused\ComposerUnused\Dependency\DependencyInterface;
 use ComposerUnused\ComposerUnused\Dependency\RequiredDependency;
 use ComposerUnused\ComposerUnused\Filter\FilterCollection;
@@ -116,6 +117,13 @@ final class UnusedCommand extends Command
             null,
             InputOption::VALUE_NONE,
             'Ignore exit codes so there are no "failure" exit codes'
+        );
+
+        $this->addOption(
+            'hide-ignored',
+            null,
+            InputOption::VALUE_NONE,
+            'Hide ignored packages from the report'
         );
 
         $this->addOption(
@@ -311,6 +319,10 @@ final class UnusedCommand extends Command
                 DependencyInterface $dependency
             ) => $dependency->inState($dependency::STATE_IGNORED) || $dependency->inState($dependency::STATE_INVALID)
         );
+
+        if ($input->getOption('hide-ignored')) {
+            $ignoredDependencyCollection = new DependencyCollection();
+        }
 
         $exitCode = $outputFormatter->formatOutput(
             $rootPackage,
